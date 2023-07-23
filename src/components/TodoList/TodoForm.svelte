@@ -24,6 +24,7 @@
 		required
 		placeholder="Add your todo"
 		bind:value
+		maxlength="35"
 	/>
 	<button class="todo-form-submit-button" type="submit">Add</button>
 </form>
