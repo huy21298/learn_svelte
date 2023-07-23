@@ -1,14 +1,19 @@
 <script lang="ts">
-	import Fa from 'svelte-fa/src/fa.svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+
 	import TodoItem from '@/components/TodoList/TodoItem.svelte';
 	import PopoverMenu from '@/components/PopoverMenu.svelte';
+	import TodoForm from '@/components/TodoList/TodoForm.svelte';
 
-	import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+	import { generateGuid } from '$lib/generateGuid';
+
+	import type { ITodo, IFilterState, IFilterItem } from '@/types/Todo';
 
 	let referenceElement: HTMLButtonElement;
 	let isShowingPopover = false;
-
-	let filterItems = [
+	let todoName = '';
+	let filterItems: IFilterItem[] = [
 		{
 			label: 'All',
 			name: 'all'
@@ -23,6 +28,48 @@
 		}
 	];
 
+	let todoItems: ITodo[] = [
+		{
+			id: generateGuid(),
+			name: 'test 1',
+			status: 'uncompleted'
+		},
+		{
+			id: generateGuid(),
+			name: 'test 2',
+			status: 'uncompleted'
+		},
+		{
+			id: generateGuid(),
+			name: 'test 3',
+			status: 'uncompleted'
+		}
+	];
+	let filterState: IFilterState = 'all';
+	let filteredTodos = [] as ITodo[];
+
+	$: completedTodo = todoItems.filter((todo) => todo.status === 'completed');
+
+	$: switch (filterState) {
+		case 'completed': {
+			filteredTodos = completedTodo;
+			break;
+		}
+		case 'uncompleted': {
+			filteredTodos = todoItems.filter((todo) => todo.status === 'uncompleted');
+			break;
+		}
+		default: {
+			filteredTodos = todoItems;
+		}
+	}
+
+	$: {
+		filterState = ($page.url.searchParams.get('status') || 'all') as IFilterState;
+	}
+
+	$: filterStateLabel = filterItems.find((filter) => filter.name === filterState);
+
 	const onTogglePopover = () => {
 		isShowingPopover = !isShowingPopover;
 	};
@@ -30,49 +77,85 @@
 	const onFilter = (item: (typeof filterItems)[number]) => () => {
 		onTogglePopover();
 	};
+
+	const addTodo = (todoName: string) => {
+		const todo: ITodo = {
+			id: generateGuid(),
+			name: todoName,
+			status: 'uncompleted'
+		};
+		todoItems = [...todoItems, todo];
+	};
+
+	const onSubmit = (event: CustomEvent<{ todoName: string }>) => {
+		addTodo(event.detail.todoName);
+		todoName = '';
+	};
+
+	const onChangeTodoStatus = (event: CustomEvent<ITodo>) => {
+		const newTodo = event.detail;
+		const index = todoItems.findIndex(({ id }) => id === newTodo.id);
+		todoItems = [...todoItems.slice(0, index), newTodo, ...todoItems.slice(index + 1)];
+	};
+
+	const onChangeTodoName = (event: CustomEvent<ITodo>) => {
+		const newTodo = event.detail;
+		const index = todoItems.findIndex(({ id }) => id === newTodo.id);
+		todoItems = [...todoItems.slice(0, index), newTodo, ...todoItems.slice(index + 1)];
+	};
+
+	const onRemoveTodo = (event: CustomEvent<ITodo>) => {
+		if (window.confirm('Are you sure you want to delete this todo?')) {
+			const deletingTodo = event.detail;
+			const index = todoItems.findIndex(({ id }) => id === deletingTodo.id);
+			todoItems = [...todoItems.slice(0, index), ...todoItems.slice(index + 1)];
+		}
+	};
 </script>
 
 <div class="todo-list-container">
 	<div class="todo-app-container">
 		<h2>Todo list - Svelte</h2>
 
-		<form class="todo-input-container">
-			<Fa icon={faListCheck} />
-			<input type="text" class="todo-input" placeholder="Add your todo" />
-			<button class="todo-add-button">Add</button>
-		</form>
+		<TodoForm on:submit={onSubmit} bind:value={todoName} />
 
 		<ul class="todo-list">
-			<TodoItem />
-			<TodoItem />
-			<TodoItem />
+			{#each filteredTodos as todo (todo.id)}
+				<TodoItem
+					{todo}
+					on:changeStatus={onChangeTodoStatus}
+					on:remove={onRemoveTodo}
+					on:changeName={onChangeTodoName}
+				/>
+			{/each}
 		</ul>
 
 		<div class="todo-list-filter-container">
 			<button
 				bind:this={referenceElement}
 				on:click={onTogglePopover}
-				class="todo-list-filter-button">Filter</button
+				class="todo-list-filter-button">Filter: {filterStateLabel?.label}</button
 			>
 
 			<PopoverMenu {referenceElement} isShowing={isShowingPopover}>
 				<div class="todo-list-filter-menu-container">
 					{#each filterItems as item, i (item.name)}
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<div
+						<a
 							class="todo-list-filter-menu-item"
 							role="button"
 							tabindex={i}
 							on:click={onFilter(item)}
+							href="{$page.url.pathname}/?status={item.name}"
 						>
 							{item.label}
-						</div>
+						</a>
 					{/each}
 				</div>
 			</PopoverMenu>
 
-			<div class="todo-list-count-completed-tasks">Completed: 2</div>
-			<div class="todo-list-count-remaining-tasks">Total Tasks: 3</div>
+			<div class="todo-list-count-completed-tasks">Completed: {completedTodo.length}</div>
+			<div class="todo-list-count-remaining-tasks">Total Tasks: {todoItems.length}</div>
 		</div>
 	</div>
 </div>
@@ -106,36 +189,9 @@
 		}
 	}
 
-	.todo-input-container {
-		align-items: center;
-		background: #edeef0;
-		border-radius: 30px;
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 25px;
-		padding-left: 20px;
-	}
-
-	.todo-input {
-		border: none;
-		font-size: 15px;
-		margin-bottom: 3px;
-		outline: none;
-		padding: 11px;
-		width: 100%;
-		background-color: transparent;
-		flex: 1 1;
-		position: relative;
-	}
-
-	.todo-add-button {
-		background: #ff5945;
-		border-radius: 40px;
-		color: #fff;
-		cursor: pointer;
-		font-size: 16px;
-		padding: 16px 50px;
-		border: none;
+	.todo-list {
+		max-height: 300px;
+		overflow: auto;
 	}
 
 	.todo-list-filter-menu-container {
@@ -145,6 +201,9 @@
 	.todo-list-filter-menu-item {
 		@include clickable;
 		padding: 12px 16px;
+		display: block;
+		text-decoration: none;
+		color: #000;
 
 		&:hover {
 			@include clickable;
@@ -169,7 +228,7 @@
 	.todo-list-count-completed-tasks,
 	.todo-list-count-remaining-tasks {
 		display: inline-block;
-		margin-left: 100px;
+		margin-left: 16px;
 	}
 
 	.todo-list-count-remaining-tasks {

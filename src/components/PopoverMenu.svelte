@@ -9,12 +9,7 @@
 		const { top, left } = referenceElement.getBoundingClientRect();
 		positionX = top;
 		positionY = left;
-		console.log('top', top);
-		console.log('left', left);
 	}
-
-	console.log('positionX', positionX);
-	console.log('positionY', positionY);
 </script>
 
 <div class="popover-container">

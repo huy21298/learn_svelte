@@ -1,20 +1,99 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	import Fa from 'svelte-fa/src/fa.svelte';
 
-	import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+
+	import type { ITodo } from '@/types/Todo';
+
+	const dispatchChangeStatus = createEventDispatcher<{ changeStatus: ITodo }>();
+	const dispatchRemove = createEventDispatcher<{ remove: ITodo }>();
+	const dispatchChangeName = createEventDispatcher<{ changeName: ITodo }>();
+
+	export let todo: ITodo;
+
+	let isEditing = false;
+	let editingTodoName = '';
+
+	$: {
+		editingTodoName = todo.name;
+	}
+
+	const onChangeStatus = (event: Event) => {
+		const { checked } = event.target as HTMLInputElement;
+		const newTodo: ITodo = {
+			...todo,
+			status: checked ? 'completed' : 'uncompleted'
+		};
+		dispatchChangeStatus('changeStatus', newTodo);
+	};
+
+	const onRemove = () => {
+		dispatchRemove('remove', todo);
+	};
+
+	const onToggleEditingMode = () => {
+		isEditing = !isEditing;
+	};
+
+	const onChangeEditingTodoName = (event: Event) => {
+		const { value } = event.target as HTMLInputElement;
+		editingTodoName = value;
+	};
+
+	const onUpdateTodoName = (event: Event) => {
+		dispatchChangeName('changeName', {
+			...todo,
+			name: editingTodoName
+		});
+		isEditing = false;
+	};
 </script>
 
 <li class="todo-item-container">
-	<input type="checkbox" class="todo-item-checkbox" id="task-201" />
-	<label class="todo-item-label clickable" for="task-201">123123</label>
-	<div class="todo-item-button-container">
-		<button>
-			<Fa icon={faPenToSquare} />
-		</button>
+	<input
+		type="checkbox"
+		class="todo-item-checkbox"
+		id="task-{todo.id}"
+		checked={todo.status === 'completed'}
+		on:change={onChangeStatus}
+	/>
 
-		<button>
-			<Fa icon={faTrash} />
-		</button>
+	{#if isEditing}
+		<form
+			class="todo-item-edit-input-container"
+			id="updating-todo-{todo.id}"
+			on:submit|preventDefault={onUpdateTodoName}
+		>
+			<input
+				autofocus
+				value={editingTodoName}
+				on:change={onChangeEditingTodoName}
+				class="todo-item-edit-input"
+				required
+			/>
+		</form>
+	{:else}
+		<label class="todo-item-label clickable" for="task-{todo.id}">{todo.name}</label>
+	{/if}
+
+	<div class="todo-item-button-container">
+		{#if isEditing}
+			<button on:click={onUpdateTodoName} type="submit" form="updating-todo-{todo.id}">
+				<Fa icon={faCheck} />
+			</button>
+			<button on:click={onToggleEditingMode}>
+				<Fa icon={faXmark} />
+			</button>
+		{:else}
+			<button on:click={onToggleEditingMode}>
+				<Fa icon={faPenToSquare} />
+			</button>
+			<button on:click={onRemove}>
+				<Fa icon={faTrash} />
+			</button>
+		{/if}
 	</div>
 </li>
 
@@ -83,5 +162,18 @@
 				margin-left: 4px;
 			}
 		}
+	}
+
+	.todo-item-edit-input-container {
+		border: 1px solid #eaeaea;
+		width: calc(100% - 50px);
+		border-radius: 4px;
+	}
+
+	.todo-item-edit-input {
+		width: 100%;
+		padding: 8px;
+		outline: none;
+		border: none;
 	}
 </style>
