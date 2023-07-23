@@ -28,23 +28,7 @@
 		}
 	];
 
-	let todoItems: ITodo[] = [
-		{
-			id: generateGuid(),
-			name: 'test 1',
-			status: 'uncompleted'
-		},
-		{
-			id: generateGuid(),
-			name: 'test 2',
-			status: 'uncompleted'
-		},
-		{
-			id: generateGuid(),
-			name: 'test 3',
-			status: 'uncompleted'
-		}
-	];
+	let todoItems: ITodo[] = [];
 	let filterState: IFilterState = 'all';
 	let filteredTodos = [] as ITodo[];
 
