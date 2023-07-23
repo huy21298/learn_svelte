@@ -1,0 +1,22 @@
+@mixin clickable {
+	cursor: pointer;
+
+	&:hover {
+		opacity: 0.575 !important;
+	}
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+	box-sizing: border-box;
+}
+
+button {
+	@include clickable();
+}
+
+.clickable {
+	@include clickable();
+}
