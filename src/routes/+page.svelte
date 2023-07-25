@@ -1,2 +1,9 @@
 <div>Welcome page</div>
-<a href="/todo">Todo list</a>
+<ul>
+	<li>
+		<a href="/todo">Todo list</a>
+	</li>
+	<li>
+		<a href="/memory_game">Memory game</a>
+	</li>
+</ul>
