@@ -49,11 +49,13 @@
 	};
 
 	const onStartNewGame = () => {
-		sufferFlags = sufferCards(programmingLanguages);
+		selectedCards = [];
 		choiceOne = '';
 		choiceTwo = '';
-		selectedCards = [];
 		timeout = null;
+		setTimeout(() => {
+			sufferFlags = sufferCards(programmingLanguages);
+		}, 500);
 	};
 </script>
 

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import questionMarkImage from '$lib/assets/images/question-mark.png';
+
 	import type { IFlag } from '@/types/Flag';
 
 	export let flag: IFlag;
@@ -8,6 +10,9 @@
 	const dispatch = createEventDispatcher<{ toggle: IFlag & { flipped: boolean } }>();
 
 	const onToggleCard = () => {
+		if (flipped) {
+			return;
+		}
 		dispatch('toggle', {
 			...flag,
 			flipped
@@ -20,10 +25,10 @@
 <div class="flip-card" role="button" class:flipped on:click={onToggleCard}>
 	<div class="flip-card-inner">
 		<div class="flip-card-front">
-			<div class="flip-card-pattern" />
+			<img src={questionMarkImage} alt="question_mark" />
 		</div>
 		<div class="flip-card-back">
-			<img src={flag.src} alt="Avatar" />
+			<img src={flag.src} alt="logo_brand" />
 		</div>
 	</div>
 </div>
@@ -64,8 +69,21 @@
 	}
 
 	.flip-card-front {
-		background-color: #bbb;
+		background: linear-gradient(
+			30deg,
+			rgba(2, 0, 36, 1) 0%,
+			rgba(0, 212, 255, 1) 0%,
+			rgba(127, 209, 245, 1) 75%
+		);
 		color: black;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		img {
+			width: 45px;
+			height: 45px;
+		}
 	}
 
 	.flip-card-back {
@@ -77,29 +95,5 @@
 			width: $square;
 			height: $square;
 		}
-	}
-
-	.flip-card-pattern {
-		--bg-2: hsl(206, 20%, 90%);
-		--bg-3: hsl(206, 20%, 80%);
-
-		width: 100%;
-		height: 100%;
-		background-color: var(--bg-2);
-		/* pattern from https://projects.verou.me/css3patterns/#marrakesh */
-		background-image: radial-gradient(var(--bg-3) 0.9em, transparent 1em),
-			repeating-radial-gradient(
-				var(--bg-3) 0,
-				var(--bg-3) 0.4em,
-				transparent 0.5em,
-				transparent 2em,
-				var(--bg-3) 2.1em,
-				var(--bg-3) 2.5em,
-				transparent 2.6em,
-				transparent 5em
-			);
-		background-size: 3em 3em, 9em 9em;
-		background-position: 0 0;
-		border-radius: 1em;
 	}
 </style>

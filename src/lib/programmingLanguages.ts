@@ -2,11 +2,11 @@ import css3 from '$lib/assets/programming-languages/css3.png';
 import html5 from '$lib/assets/programming-languages/html5.png';
 import java from '$lib/assets/programming-languages/java.png';
 import javascript from '$lib/assets/programming-languages/javascript.png';
-import jquery from '$lib/assets/programming-languages/jquery.png';
+import cplusplus from '$lib/assets/programming-languages/cplusplus.png';
 import kotlin from '$lib/assets/programming-languages/kotlin.png';
 import nodejs from '$lib/assets/programming-languages/nodejs.png';
 import php from '$lib/assets/programming-languages/php.png';
-import pycharm from '$lib/assets/programming-languages/pycharm.png';
+import csharp from '$lib/assets/programming-languages/csharp.png';
 import python from '$lib/assets/programming-languages/python.png';
 import react from '$lib/assets/programming-languages/react.png';
 import ruby from '$lib/assets/programming-languages/ruby.png';
@@ -41,9 +41,9 @@ const flags: IFlag[] = [
 		src: javascript
 	},
 	{
-		name: 'jquery',
-		label: 'jQuery',
-		src: jquery
+		name: 'cplusplus',
+		label: 'C++',
+		src: cplusplus
 	},
 	{
 		name: 'kotlin',
@@ -61,9 +61,9 @@ const flags: IFlag[] = [
 		src: php
 	},
 	{
-		name: 'pycharm',
-		label: 'Pycharm',
-		src: pycharm
+		name: 'csharp',
+		label: 'C#',
+		src: csharp
 	},
 	{
 		name: 'python',
