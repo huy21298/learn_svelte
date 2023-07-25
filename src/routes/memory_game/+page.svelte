@@ -2,21 +2,15 @@
 	import MemoryCard from '@/components/MemoryGame/MemoryCard.svelte';
 
 	import programmingLanguages from '$lib/programmingLanguages';
-	import { generateGuid } from '$lib/generateGuid';
+	import sufferCards from '$lib/assets/sufferCards';
 
 	import type { IFlag } from '@/types/Flag';
 
-	let sufferFlags: IFlag[];
+	let sufferFlags: IFlag[] = sufferCards(programmingLanguages);
 	let choiceOne = '';
 	let choiceTwo = '';
 	let selectedCards: string[] = [];
 	let timeout = null as number | null;
-
-	$: {
-		sufferFlags = [...programmingLanguages, ...programmingLanguages]
-			.sort(() => Math.random() - 0.5)
-			.map((flag) => ({ ...flag, id: generateGuid() }));
-	}
 
 	$: {
 		if (choiceOne && choiceTwo) {
@@ -53,32 +47,51 @@
 			choiceOne = id;
 		}
 	};
+
+	const onStartNewGame = () => {
+		sufferFlags = sufferCards(programmingLanguages);
+		choiceOne = '';
+		choiceTwo = '';
+		selectedCards = [];
+		timeout = null;
+	};
 </script>
 
-<div class="memory-game-card-list-container">
-	<div class="memory-game-card-list">
-		{#each sufferFlags as flag (flag.id)}
-			<MemoryCard
-				{flag}
-				on:toggle={onToggleCard}
-				flipped={[choiceOne, choiceTwo].includes(flag.id || '') ||
-					selectedCards.includes(flag.name)}
-			/>
-		{/each}
+<div class="memory-game-container">
+	<div style="margin: auto">
+		<button class="memory-game-start-new-game-button" on:click={onStartNewGame}
+			>Start new game</button
+		>
+		<div class="memory-game-card-list">
+			{#each sufferFlags as flag (flag.id)}
+				<MemoryCard
+					{flag}
+					on:toggle={onToggleCard}
+					flipped={[choiceOne, choiceTwo].includes(flag.id || '') ||
+						selectedCards.includes(flag.name)}
+				/>
+			{/each}
+		</div>
 	</div>
 </div>
 
 <style>
-	.memory-game-card-list-container {
+	.memory-game-container {
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		/* justify-content: center; */
 		height: 100vh;
+		flex-direction: column;
+	}
+
+	.memory-game-start-new-game-button {
+		margin-bottom: 12px;
 	}
 	.memory-game-card-list {
 		display: grid;
 		grid-template-columns: repeat(6, minmax(0, 1fr));
 		gap: 8px;
 		max-width: 650px;
+		margin: auto;
 	}
 </style>
