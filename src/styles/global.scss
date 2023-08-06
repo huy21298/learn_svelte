@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @mixin clickable {
 	cursor: pointer;
 
@@ -9,7 +13,7 @@
 * {
 	margin: 0;
 	padding: 0;
-	font-family: sans-serif;
+	font-family: 'Inter', sans-serif;
 	box-sizing: border-box;
 }
 

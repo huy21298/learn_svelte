@@ -1,9 +1,25 @@
+<script lang="ts">
+	const navItems = [
+		{
+			href: '/todo',
+			label: 'Todo list'
+		},
+		{
+			href: '/memory_game',
+			label: 'Memory game'
+		},
+		{
+			href: '/products',
+			label: 'Products'
+		}
+	];
+</script>
+
 <div>Welcome page</div>
 <ul>
-	<li>
-		<a href="/todo">Todo list</a>
-	</li>
-	<li>
-		<a href="/memory_game">Memory game</a>
-	</li>
+	{#each navItems as nav (nav.href)}
+		<li>
+			<a href={nav.href}>{nav.label}</a>
+		</li>
+	{/each}
 </ul>
