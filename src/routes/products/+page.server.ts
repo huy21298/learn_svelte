@@ -1,11 +1,14 @@
-/** @type {import('./$types').PageLoad} */
+import HttpService from '$lib/HttpService';
+import type { Cart } from '@/types/Cart.js';
+import type { Product } from '@/types/Product';
 
-export function load({ params }: PageLoad) {
-	console.log('params', params);
+export async function load({ cookies }) {
+	const httpService = new HttpService('/products');
+	const cartItems = cookies.get('carts') || ([] as Cart[]);
+	const { data } = await httpService.get<Product[]>();
+
 	return {
-		post: {
-			title: `Title for ${params.slug} goes here`,
-			content: `Content for ${params.slug} goes here`
-		}
+		products: data,
+		cartItems
 	};
 }

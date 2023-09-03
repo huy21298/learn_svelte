@@ -1,12 +1,38 @@
 <script lang="ts">
-	// /** @type {import('./$types').PageData} */
-	// export let data;
+	import { onMount, onDestroy } from 'svelte';
+
+	import ProductCard from '@/components/Products/ProductCard.svelte';
+	import CartList from '@/components/Products/CartList.svelte';
+
+	import productsStore from '@/stores/products';
+	import cartStore from '@/stores/cart';
+
+	import type { Cart } from '@/types/Cart';
+	import type { Product } from '@/types/Product';
+
+	export let data: { products: Product[]; cartItems: Cart[] };
+
+	let products: Product[];
+
+	const unsubcribeProductsStore = productsStore.subscribe((val) => {
+		products = val;
+	});
+
+	const onOpenCart = () => {
+		cartStore.setIsOpenCart(true);
+	};
+
+	onMount(() => {
+		productsStore.setProducts(data.products);
+	});
+
+	onDestroy(unsubcribeProductsStore);
 </script>
 
 <nav class="bg-gray-800">
 	<div class="mx-auto md:px-[24px] px-[16px]">
 		<div class="relative flex h-16 items-center justify-end">
-			<button class="text-white">
+			<button class="text-white" on:click={onOpenCart}>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -31,36 +57,12 @@
 <div
 	class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 gap-4 md:mt-4 md:mx-4 md:mb-4"
 >
-	{#each [1, 2, 3, 4, 5] as num}
-		<div
-			class="w-full bg-white border border-gray-200 md:rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-		>
-			<a href="#">
-				<!-- svelte-ignore a11y-img-redundant-alt -->
-				<img
-					class="p-8 rounded-t-lg"
-					src="https://flowbite.com/docs/images/products/apple-watch.png"
-					alt="product image"
-				/>
-			</a>
-			<div class="px-5 pb-5 mb-5">
-				<a href="#">
-					<h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-						Apple Watch Series 7 GPS, Aluminium Case, Starlight Sport
-					</h5>
-				</a>
-				<div class="flex items-center justify-between mt-2.5">
-					<span class="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
-					<a
-						href="#"
-						class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						>Add to cart</a
-					>
-				</div>
-			</div>
-		</div>
+	{#each products as item (item.id)}
+		<ProductCard product={item} />
 	{/each}
 </div>
+
+<CartList />
 
 <style lang="postcss">
 </style>
